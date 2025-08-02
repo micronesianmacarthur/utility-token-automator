@@ -1,38 +1,46 @@
+# src/service/validate_optimized.py
+
+class ValidationError(Exception):
+    """Custom exception for validation errors."""
+    pass
+
+
 class Validate:
-    @staticmethod
-    def meter_num(value):
-        """
-        Validate Meter Number is not empty and is numeric.
-        :param value: (str) Meter Number.
-        :return: (bool)
-        """
-        if value:
-            try:
-                int(value)
-                return True, "Valid Meter Number"
-            except (TypeError, ValueError):
-                return False, "Invalid Meter Number"
-        return False, "Meter Number is required"
+    """
+    Provides static methods for input validation.
+    Methods raise ValidationError on failure for clear, Pythonic error handling.
+    """
 
     @staticmethod
-    def amount(value):
+    def meter_num(value: str):
         """
-        Validate Amount is not empty and is numeric.
-        :param value: (str) Amount.
-        :return: (bool), (float) Amount, (str) message
+        Validates that the Meter Number is a non-empty string of digits.
+
+        Raises:
+            ValidationError: If validation fails.
         """
-        if value:
-            try:
-                value = float(value)
-                if value < 5:
-                    return False, value, "Amount cannot be less than 5"
-                return True, value, "Valid Amount"
-            except (TypeError, ValueError):
-                return False, value, "Invalid Amount"
-        return False, value, "Amount is required"
+        if not value or not value.strip():
+            raise ValidationError("Meter Number is required.")
+        if not value.isdigit():
+            raise ValidationError("Invalid Meter Number: must contain only digits.")
 
     @staticmethod
-    def cc_details(name, number, code, month, year):
-        if not all ([name, number, code, month, year]):
-            return False, "Missing CC environment variables"
-        return True, "CC environment variables set"
+    def amount(value: str):
+        """
+        Validates the purchase amount.
+
+        Returns:
+            float: The validated and converted amount.
+
+        Raises:
+            ValidationError: If validation fails.
+        """
+        if not value or not value.strip():
+            raise ValidationError("Amount is required.")
+        try:
+            amount_val = float(value)
+            if amount_val < 5.0:
+                raise ValidationError("Amount cannot be less than $5.00.")
+            return amount_val
+        except (ValueError, TypeError):
+            raise ValidationError("Invalid Amount: must be a number.")
