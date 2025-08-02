@@ -161,9 +161,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.msg_box.setWindowTitle("Confirm Details")
         self.msg_box.setIcon(qtw.QMessageBox.Question)
         self.msg_box.setText(
-            f"Please confirm details are correct:<br><br>Customer Name: <span style=\"font-weight:bold;color:#1E90FF;\""
-            f">{customer_name}</span><br>Meter No.: <span style=\"font-weight:bold;color:#1E90FF;\">{meter_number}</span>"
-            f"<br>Amount: <span style=\"font-weight:bold;color:#1E90FF;\">${amount}</span>")
+            f'Please confirm details are correct:<br><br>Customer Name: <span style="font-weight:bold;color:#1E90FF;"'
+            f'>{customer_name}</span><br>Meter No.: <span style="font-weight:bold;color:#1E90FF;">{meter_number}</span>'
+            f'<br>Amount: <span style="font-weight:bold;color:#1E90FF;">${amount:.2f}</span>')
         self.msg_box.setStandardButtons(qtw.QMessageBox.Yes | qtw.QMessageBox.Abort)
         response = self.msg_box.exec()
 
