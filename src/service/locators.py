@@ -1,4 +1,4 @@
-# src/service/locators.py
+# src.service.locators
 
 from selenium.webdriver.common.by import By
 

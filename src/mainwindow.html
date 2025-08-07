@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utility Token Automator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-window">
+        <header class="menu-bar">
+            <!-- <span>File</span> -->
+            <button id="theme-toggle" title="Toggle light/dark mode">🌙</button>
+        </header>
+
+        <main>
+            <form id="token-form" onsubmit="return false;">
+                <input type="text" id="meter-no" class="input-field" placeholder="Meter Number">
+                <input type="number" id="amount" class="input-field" placeholder="Amount $">
+                
+                <div class="button-group">
+                    <button id="submit-btn" type="submit">Submit</button>
+                    <button id="clear-btn" type="button">Clear</button>
+                </div>
+            </form>
+
+            <div id="token-display"></div>
+            <p id="message-area"></p>
+        </main>
+
+        <footer id="status-bar" class="status-bar">
+            Ready
+        </footer>
+    </div>
+
+    <script src="script.js" defer></script>
+
+</body>
+</html>

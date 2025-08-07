@@ -14,7 +14,7 @@ class ConfigError(Exception):
 
 def get_cc_details():
     """
-    Retrieves CC details from environment variables in-time
+    Retrieves CC details from environment variables in-time.
 
     :return:
         dict: Dictionary containing the CC details

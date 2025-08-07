@@ -1,7 +1,7 @@
-# src/service/setup_worker_optimized.py
+# src.service.setup_worker
 
 from PySide6.QtCore import QObject, Signal
-from .browser_automator_optimized import BrowserAutomator
+from .browser_automator import BrowserAutomator
 
 class SetupWorker(QObject):
     """
@@ -20,7 +20,7 @@ class SetupWorker(QObject):
     def run(self):
         """The task to be executed in the background thread."""
         try:
-            self.automator = BrowserAutomator(url=self.url, headless=True, logger=self.logger)
+            self.automator = BrowserAutomator(url=self.url, headless=False, logger=self.logger, skip_setup=True)
             self.automator.setup_driver()
             self.automator.open_site()
             self.finished.emit(self.automator)

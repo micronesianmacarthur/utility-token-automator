@@ -1,4 +1,4 @@
-# src/service/log_handler_optimized.py
+# src.service.log_handler
 
 import logging
 from PySide6.QtWidgets import QStatusBar

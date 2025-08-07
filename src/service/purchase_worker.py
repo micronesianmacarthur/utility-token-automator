@@ -1,7 +1,7 @@
-# src/service/purchase_worker.py
+# src.service.purchase_worker
 
 from PySide6.QtCore import QObject, Signal
-from .browser_automator_optimized import BrowserAutomator
+from .browser_automator import BrowserAutomator
 from .locators import FirstPageLocators, SecondPageLocators, ConfirmationPopupLocators, ResultPageLocators
 
 
