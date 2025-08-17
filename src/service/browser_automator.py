@@ -13,6 +13,8 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
+from src.service.locators import FirstPageLocators, DatePickerLocators
+
 
 class BrowserAutomator:
     """
@@ -64,6 +66,45 @@ class BrowserAutomator:
                 log.critical(edge_msg)
                 raise RuntimeError("WebDriver initiation failed") from edge_error
 
+    def _setup_chrome(self):
+        options = ChromeOptions()
+
+        if self.headless:
+            options.add_argument("--headless")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+
+        try:
+            service = ChromeService(ChromeDriverManager().install())
+            self.driver = webdriver.Chrome(service=service, options=options)
+            self.wait = WebDriverWait(self.driver, 10)
+            self.logger.info("Chrome initiated")
+        except Exception as chrome_error:
+            chrome_msg = f"Chrome WebDriver failed: {chrome_error}"
+            self.logger.warning(chrome_msg)
+            try:
+                self._setup_edge()
+            except Exception as edge_error:
+                self.logger.critical(edge_error)
+                raise RuntimeError("WebDriver initiation failed") from edge_error
+
+
+    def _setup_edge(self):
+        options = EdgeOptions()
+
+        if self.headless:
+            options.add_argument("--headless")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+
+        service = EdgeService(EdgeChromiumDriverManager().install())
+        self.driver = webdriver.Edge(service=service, options=options)
+        self.wait = WebDriverWait(self.driver, 10)
+        self.logger.info("Edge initiated")
+
+
     def close(self):
         """
         Closes the browser.
@@ -84,15 +125,21 @@ class BrowserAutomator:
         try:
             self.logger.info("Loading payment page. Please be patient.")
             self.driver.get(self.url)
-            self.driver.maximize_window() # unnecessary with headless=True
+            if not self.headless:
+                self.driver.maximize_window()
 
             # wait for key element on the first page to ensure it's loaded correctly
-            self.wait.until(EC.presence_of_element_located((By.ID, "ctl00_ContentPlaceHolder1_radTxtMeter")))
+            self.wait_for_element(FirstPageLocators.METER_INPUT)
             self.logger.info("Payment page loaded successfully")
             return True
         except Exception as e:
             self.logger.critical(f"Error: {e}")
             return None
+
+    def wait_for_element(self, locator, timeout = 10):
+        """Waits for element to be visible."""
+        wait = WebDriverWait(self.driver, timeout)
+        return wait.until(EC.visibility_of_element_located(locator))
 
     def enter_payment_details(self, meter: str, cc_number: str, cc_name: str, cc_code: str,
                               exp_month: int, exp_year: int):
@@ -109,44 +156,24 @@ class BrowserAutomator:
         self.logger.info("Initiating payment details.")
         try:
             # input meter
-            meter_input = self.wait.until(EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_radTxtMeter")))
-            meter_input.clear()
-            meter_input.send_keys(meter)
+            self.send_keys_to_element(FirstPageLocators.METER_INPUT, meter)
 
             # input CC number
-            cc_number_input = self.wait.until(
-                EC.element_to_be_clickable((By.ID,
-                                            "ctl00_ContentPlaceHolder1_rtxtCreditCardNumber")))
-            cc_number_input.clear()
-            cc_number_input.send_keys(cc_number)
+            self.send_keys_to_element(FirstPageLocators.CC_NUMBER_INPUT, cc_number)
 
             # input cc holder name
-            cc_name_input = self.wait.until(
-                EC.element_to_be_clickable((By.ID,
-                                            "ctl00_ContentPlaceHolder1_txtCardholderName"))
-            )
-            cc_name_input.clear()
-            cc_name_input.send_keys(cc_name)
+            self.send_keys_to_element(FirstPageLocators.CC_NAME_INPUT, cc_name)
 
             # input CC code
-            cc_code_input = self.wait.until(
-                EC.element_to_be_clickable((By.ID,
-                                            "ctl00_ContentPlaceHolder1_txtCardCode"))
-            )
-            cc_code_input.clear()
-            cc_code_input.send_keys(cc_code)
+            self.send_keys_to_element(FirstPageLocators.CC_CODE_INPUT, cc_code)
 
             try:
                 # handle expiry date
-                expiry_popup_button = self.wait.until(
-                    EC.element_to_be_clickable((By.ID,
-                                                "ctl00_ContentPlaceHolder1_dtpExpirationDate_popupButton"))
-                )
-                expiry_popup_button.click()
+                self.click_element(FirstPageLocators.EXPIRY_POPUP_BUTTON)
 
                 # wait for date picker to appear
-                self.wait.until(EC.visibility_of_element_located((By.ID,
-                                                                  "rcMView_Jan")))
+                self.wait_for_element(DatePickerLocators.JAN_LINK)
+
                 # month mapping for IDs
                 month_ids = {
                     1: "rcMView_Jan", 2: "rcMView_Feb", 3: "rcMView_Mar", 4: "rcMView_Apr", 5: "rcMView_May",
@@ -160,9 +187,8 @@ class BrowserAutomator:
                     raise ValueError(f"Invalid month: {exp_month}. Must be between 1 and 12.")
 
                 # find the <a> tag inside the <td> for the month
-                month_element = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                            f"//td[@id='{target_month_id}']//a")))
-                month_element.click()
+                self.click_element(DatePickerLocators.MONTH_XPATH_TEMPLATE.format(month=target_month_id))
+
             except Exception as e:
                 self.logger.critical(f"Error with month picker: {e}")
 
@@ -193,41 +219,19 @@ class BrowserAutomator:
                     break # exit loop when target year is visible
 
                 if exp_year > max_current_year:
-                    next_year_button = self.wait.until(
-                        EC.element_to_be_clickable((By.ID,
-                                                    "ctl00_ContentPlaceHolder1_dtpExpirationDate_dtpExpirationDate_"
-                                                    "NavigationNextLink"))
-                    )
-                    next_year_button.click()
+                    self.click_element(DatePickerLocators.NEXT_YEAR_BUTTON)
 
                     # wait for UI to update
-                    self.wait.until(
-                        EC.element_to_be_clickable(
-                            (By.ID,
-                             "ctl00_ContentPlaceHolder1_dtpExpirationDate_dtpExpirationDate_NavigationNextLink")
-                        )
-                    )
+                    self.wait_for_element(DatePickerLocators.NEXT_YEAR_BUTTON)
                 else:
                     self.logger.error(f"Issue navigating year elements.")
                     break
 
             # click target year after loop
-            year_elements_to_click = self.wait.until(
-                EC.element_to_be_clickable(
-                    (By.XPATH,
-                     f"//td[@id='rcMView_{exp_year}']//a")
-                )
-            )
-            year_elements_to_click.click()
+            self.click_element(DatePickerLocators.YEAR_XPATH_TEMPLATE.format(year=exp_year))
 
             # click OK button in date picker
-            ok_button = self.wait.until(
-                EC.element_to_be_clickable(
-                    (By.ID,
-                     "rcMView_OK")
-                )
-            )
-            ok_button.click()
+            self.click_element(DatePickerLocators.OK_BUTTON)
 
             self.logger.info("All payment details entered successfully.")
             return True
@@ -235,14 +239,23 @@ class BrowserAutomator:
             self.logger.error(str(e))
             return False
 
+    def click_element(self, locator):
+        """Finds clickable element and clicks it."""
+        element = self.wait.until(EC.element_to_be_clickable(locator))
+        element.click()
+
+    def send_keys_to_element(self, locator, keys):
+        """Finds element, clears it, and sends keys to it."""
+        element = self.wait.until(EC.element_to_be_clickable(locator))
+        element.clear()
+        element.send_keys(keys)
+
     def click_next_button(self):
         """
         Clicks the 'Next' button on the current page.
         """
         try:
-            next_button = self.wait.until(
-                EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_btnNext_input")))
-            next_button.click()
+            self.click_element(FirstPageLocators.NEXT_BUTTON)
             logging.info("Clicked 'Next' button.")
             return True
         except Exception as e:

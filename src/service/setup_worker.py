@@ -14,7 +14,7 @@ class SetupWorker(QObject):
 
     def run(self):
         try:
-            automator = BrowserAutomator(url=self.url, headless=True, logger=self.logger, skip_setup=True)
+            automator = BrowserAutomator(url=self.url, headless=False, logger=self.logger, skip_setup=True)
             automator.setup_driver()
             automator.open_site()
             self.finished.emit(automator)
