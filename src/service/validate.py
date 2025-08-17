@@ -1,6 +1,5 @@
 class Validate:
-    @staticmethod
-    def meter_num(value):
+    def meterNo(self, value):
         """
         Validate Meter Number is not empty and is numeric.
         :param value: (str) Meter Number.
@@ -14,8 +13,7 @@ class Validate:
                 return False, "Invalid Meter Number"
         return False, "Meter Number is required"
 
-    @staticmethod
-    def amount(value):
+    def amount(self, value):
         """
         Validate Amount is not empty and is numeric.
         :param value: (str) Amount.
@@ -31,8 +29,7 @@ class Validate:
                 return False, value, "Invalid Amount"
         return False, value, "Amount is required"
 
-    @staticmethod
-    def cc_details(name, number, code, month, year):
+    def cc_details(self, name, number, code, month, year):
         if not all ([name, number, code, month, year]):
             return False, "Missing CC environment variables"
         return True, "CC environment variables set"

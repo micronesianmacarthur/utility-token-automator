@@ -15,11 +15,6 @@ from static.constants import *
 class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        self.msg_box = None
-        self.automator = None
-        self.worker = None
-        self.thread = None
-        self.logger = None
         self.setupUi(self)
         self.set_logging()
 
@@ -55,11 +50,15 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # validations
         validate = Validate()
 
-        valid, msg = validate.meter_num(meter_number)
+        valid, msg = validate.meterNo(meter_number)
         if not valid:
             msg_display.setText(msg)
             meter_input.setFocus()
             meter_input.selectAll()
+
+            #=====================
+
+            #========================
 
             return
 
@@ -161,9 +160,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.msg_box.setWindowTitle("Confirm Details")
         self.msg_box.setIcon(qtw.QMessageBox.Question)
         self.msg_box.setText(
-            f'Please confirm details are correct:<br><br>Customer Name: <span style="font-weight:bold;color:#1E90FF;"'
-            f'>{customer_name}</span><br>Meter No.: <span style="font-weight:bold;color:#1E90FF;">{meter_number}</span>'
-            f'<br>Amount: <span style="font-weight:bold;color:#1E90FF;">${amount:.2f}</span>')
+            f"Please confirm details are correct:<br><br>Customer Name: <span style=\"font-weight:bold;color:#1E90FF;\""
+            f">{customer_name}</span><br>Meter No.: <span style=\"font-weight:bold;color:#1E90FF;\">{meter_number}</span>"
+            f"<br>Amount: <span style=\"font-weight:bold;color:#1E90FF;\">${amount}</span>")
         self.msg_box.setStandardButtons(qtw.QMessageBox.Yes | qtw.QMessageBox.Abort)
         response = self.msg_box.exec()
 
