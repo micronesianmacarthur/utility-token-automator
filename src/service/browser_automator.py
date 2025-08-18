@@ -13,7 +13,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
-from src.service.locators import FirstPageLocators, DatePickerLocators, SecondPageLocators
+from src.service.locators import FirstPageLocators, DatePickerLocators, SecondPageLocators, ResultPageLocators
 
 
 class BrowserAutomator:
@@ -279,7 +279,7 @@ class BrowserAutomator:
 
     def get_element_text(self, locator) -> str:
         """Finds element and returns its text."""
-        element = self.wait.until(EC.visibility_of_element_located(lcoator))
+        element = self.wait.until(EC.visibility_of_element_located(locator))
         return element.text.strip()
 
     def get_customer_name(self):
@@ -311,16 +311,10 @@ class BrowserAutomator:
         """
         try:
             # Click the "Other" radio button
-            other_radio_button = self.wait.until(
-                EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_radlAmount_ctl04")))
-            other_radio_button.click()
-            logging.info("Clicked 'Other' radio button for amount input.")
+            self.click_element(SecondPageLocators.OTHER_AMOUNT_RADIO)
 
             # Wait for the amount input field to become visible and clickable
-            amount_input_field = self.wait.until(
-                EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_radNumericTxtAmount")))
-            amount_input_field.clear()
-            amount_input_field.send_keys(str(amount))  # Send as string
+            self.send_keys_to_element(SecondPageLocators.AMOUNT_INPUT)
             logging.info(f"Entered amount: {amount}")
             return True
         except Exception as e:
@@ -365,16 +359,15 @@ class BrowserAutomator:
             # Using EC.any_of for more precise waiting
             self.wait.until(
                 EC.any_of(
-                    EC.visibility_of_element_located((
-                        By.ID, "ctl00_ContentPlaceHolder1_radLblVouchers")),
-                    EC.visibility_of_element_located((By.ID, "LeftTitle"))
+                    EC.visibility_of_element_located(
+                        ResultPageLocators.TOKEN_LABEL),
+                    EC.visibility_of_element_located(ResultPageLocators.ERROR_TITLE)
                 )
             )
 
             # Check for token first
             try:
-                token_element = self.driver.find_element(By.ID, "ctl00_ContentPlaceHolder1_radLblVouchers")
-                token_text = token_element.text.strip()
+                token_text = self.get_element_text(ResultPageLocators.TOKEN_LABEL)
                 if token_text:
                     self.logger.info(f"Payment successful. Token received")
                     logging.info(f"Token found: {token_text}")
@@ -384,17 +377,13 @@ class BrowserAutomator:
 
             # Check for error message
             try:
-                error_title_element = self.driver.find_element(By.ID, "LeftTitle")
-                error_title_text = error_title_element.text.strip()
+                error_title_text = self.get_element_text(ResultPageLocators.ERROR_TITLE)
 
                 # If "Error Message" is in the title, look for the detailed error
                 if "Error Message" in error_title_text:
                     # Look for the specific error detail div
-                    error_detail_element = self.driver.find_element(
-                        By.XPATH,
-                        "//div[@style='font-size: 14px; text-align: left; word-break: break-all;']"
-                    )
-                    error_detail_text = error_detail_element.text.strip()
+                    error_detail_text = self.get_element_text(ResultPageLocators.ERROR_DETAIL_XPATH)
+
                     self.logger.critical(f"Payment failed: {error_detail_text}")
                     logging.warning(f"Error detected: {error_detail_text}")
                     return False, error_detail_text
