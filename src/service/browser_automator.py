@@ -13,7 +13,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
-from src.service.locators import FirstPageLocators, DatePickerLocators
+from src.service.locators import FirstPageLocators, DatePickerLocators, SecondPageLocators
 
 
 class BrowserAutomator:
@@ -277,25 +277,22 @@ class BrowserAutomator:
             self.logger.error(f"Timeout error: {str(te)}")
             return None
 
+    def get_element_text(self, locator) -> str:
+        """Finds element and returns its text."""
+        element = self.wait.until(EC.visibility_of_element_located(lcoator))
+        return element.text.strip()
+
     def get_customer_name(self):
         try:
             # get parent element by xpath
-            parent = self.wait.until(
-            EC.visibility_of_element_located((
-                By.XPATH, "//*[@id='Payment4_1']/div[1]"
-            )))
+            self.wait_for_element(SecondPageLocators.CUSTOMER_NAME_FIRST)
+
             # get first name row
-            first_name_element = parent.find_element(
-                By.ID, "ctl00_ContentPlaceHolder1_radLblConsumerFirstName"
-            )
-            # extract first name text
-            first_name = first_name_element.text.strip().split("(")[0]
+            first_name = self.get_element_text(SecondPageLocators.CUSTOMER_NAME_FIRST)
+
             # get last name row
-            last_name_element = parent.find_element(
-                By.ID, "ctl00_ContentPlaceHolder1_radLblConsumerSurname"
-            )
-            # extract last name text
-            last_name = last_name_element.text.strip()
+            last_name = self.get_element_text(SecondPageLocators.CUSTOMER_NAME_LAST)
+
             # combine name
             full_name = f"{first_name} {last_name}"
             return full_name
