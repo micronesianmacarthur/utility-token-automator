@@ -187,7 +187,8 @@ class BrowserAutomator:
                     raise ValueError(f"Invalid month: {exp_month}. Must be between 1 and 12.")
 
                 # find the <a> tag inside the <td> for the month
-                self.click_element(DatePickerLocators.MONTH_XPATH_TEMPLATE.format(month=target_month_id))
+                month_locator = (By.XPATH, DatePickerLocators.MONTH_XPATH_TEMPLATE.format(month_str=target_month_id))
+                self.click_element(month_locator)
 
             except Exception as e:
                 self.logger.critical(f"Error with month picker: {e}")
@@ -228,7 +229,8 @@ class BrowserAutomator:
                     break
 
             # click target year after loop
-            self.click_element(DatePickerLocators.YEAR_XPATH_TEMPLATE.format(year=exp_year))
+            year_locator = (By.XPATH, DatePickerLocators.YEAR_XPATH_TEMPLATE.format(year=exp_year))
+            self.click_element(year_locator)
 
             # click OK button in date picker
             self.click_element(DatePickerLocators.OK_BUTTON)
