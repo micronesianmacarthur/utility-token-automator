@@ -22,6 +22,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.lb_token.setText("")
         self.lb_message.setText("")
 
+        # set le_meter and le_amount to listen to 'Enter' key press
+        self.le_meterNo.returnPressed.connect(self.validate_input)
+        self.le_amount.returnPressed.connect(self.validate_input)
+
         # connect buttons
         self.pb_clear.clicked.connect(self.clear_input)
         self.pb_submit.clicked.connect(self.validate_input)

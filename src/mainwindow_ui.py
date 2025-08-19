@@ -109,6 +109,7 @@ class Ui_MainWindow(object):
         self.pb_submit = QPushButton(self.widget_4)
         self.pb_submit.setObjectName(u"pb_submit")
         self.pb_submit.setMinimumSize(QSize(0, 35))
+        self.pb_submit.setFont(font)
         self.pb_submit.setStyleSheet(u"background-color: rgb(0, 170, 255);")
 
         self.horizontalLayout_2.addWidget(self.pb_submit)
@@ -205,6 +206,9 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
+
+        self.pb_submit.setDefault(False)
+
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi

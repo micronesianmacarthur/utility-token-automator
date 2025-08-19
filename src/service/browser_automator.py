@@ -13,7 +13,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
-from src.service.locators import FirstPageLocators, DatePickerLocators, SecondPageLocators, ResultPageLocators
+from .locators import FirstPageLocators, DatePickerLocators, SecondPageLocators, ResultPageLocators
 
 
 class BrowserAutomator:
@@ -171,9 +171,6 @@ class BrowserAutomator:
                 # handle expiry date
                 self.click_element(FirstPageLocators.EXPIRY_POPUP_BUTTON)
 
-                # wait for date picker to appear
-                self.wait_for_element(DatePickerLocators.JAN_LINK)
-
                 # month mapping for IDs
                 month_ids = {
                     1: "rcMView_Jan", 2: "rcMView_Feb", 3: "rcMView_Mar", 4: "rcMView_Apr", 5: "rcMView_May",
@@ -316,7 +313,7 @@ class BrowserAutomator:
             self.click_element(SecondPageLocators.OTHER_AMOUNT_RADIO)
 
             # Wait for the amount input field to become visible and clickable
-            self.send_keys_to_element(SecondPageLocators.AMOUNT_INPUT)
+            self.send_keys_to_element(SecondPageLocators.AMOUNT_INPUT, amount)
             logging.info(f"Entered amount: {amount}")
             return True
         except Exception as e:
@@ -384,7 +381,7 @@ class BrowserAutomator:
                 # If "Error Message" is in the title, look for the detailed error
                 if "Error Message" in error_title_text:
                     # Look for the specific error detail div
-                    error_detail_text = self.get_element_text(ResultPageLocators.ERROR_DETAIL_XPATH)
+                    error_detail_text = self.get_element_text((By.XPATH, ResultPageLocators.ERROR_DETAIL_XPATH))
 
                     self.logger.critical(f"Payment failed: {error_detail_text}")
                     logging.warning(f"Error detected: {error_detail_text}")

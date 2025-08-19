@@ -185,11 +185,21 @@
               <height>35</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>14</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(0, 170, 255);</string>
             </property>
             <property name="text">
              <string>Submit</string>
+            </property>
+            <property name="default">
+             <bool>false</bool>
             </property>
            </widget>
           </item>

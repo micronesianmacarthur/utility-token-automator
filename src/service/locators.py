@@ -16,7 +16,7 @@ class FirstPageLocators:
 class DatePickerLocators:
     """Locators for the date picker calendar popup."""
     JAN_LINK = (By.ID, "rcMView_Jan")  # Used to wait for the picker to be visible
-    MONTH_XPATH_TEMPLATE = "//td[@id='rcMView_{month_str}']//a"
+    MONTH_XPATH_TEMPLATE = "//td[@id='{month_str}']//a"
     YEAR_XPATH_TEMPLATE = "//td[@id='rcMView_{year}']//a"
     NEXT_YEAR_BUTTON = (By.ID, "ctl00_ContentPlaceHolder1_dtpExpirationDate_dtpExpirationDate_NavigationNextLink")
     PREV_YEAR_BUTTON = (By.ID, "ctl00_ContentPlaceHolder1_dtpExpirationDate_dtpExpirationDate_NavigationPrevLink")
