@@ -136,7 +136,7 @@ class BrowserAutomator:
             self.logger.critical(f"Error: {e}")
             return None
 
-    def wait_for_element(self, locator, timeout = 10):
+    def wait_for_element(self, locator, timeout = 4):
         """Waits for element to be visible."""
         wait = WebDriverWait(self.driver, timeout)
         return wait.until(EC.visibility_of_element_located(locator))
@@ -191,13 +191,10 @@ class BrowserAutomator:
                 self.logger.critical(f"Error with month picker: {e}")
 
             # select year
-            # XPath to find year elements
-            YEAR_XPATH = "//td[starts-with(@id, 'rcMView_') and string-length(substring-after(@id, 'rcMView_')) = 4 and number(substring-after(@id, 'rcMView_')) = substring-after(@id, 'rcMView_')]//a"
-
             # loop to navigate years until target year is visible
             while True:
                 # get all visible year elements in the current view
-                year_elements = self.driver.find_elements(By.XPATH, YEAR_XPATH)
+                year_elements = self.driver.find_elements(By.XPATH, DatePickerLocators.VISIBLE_YEARS_XPATH)
 
                 current_years = []
                 for el in year_elements:
