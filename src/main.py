@@ -22,6 +22,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.lb_token.setText("")
         self.lb_message.setText("")
 
+        # set le_meter and le_amount to listen to 'Enter' key press
+        self.le_meterNo.returnPressed.connect(self.validate_input)
+        self.le_amount.returnPressed.connect(self.validate_input)
+
         # connect buttons
         self.pb_clear.clicked.connect(self.clear_input)
         self.pb_submit.clicked.connect(self.validate_input)
@@ -162,7 +166,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.msg_box.setText(
             f"Please confirm details are correct:<br><br>Customer Name: <span style=\"font-weight:bold;color:#1E90FF;\""
             f">{customer_name}</span><br>Meter No.: <span style=\"font-weight:bold;color:#1E90FF;\">{meter_number}</span>"
-            f"<br>Amount: <span style=\"font-weight:bold;color:#1E90FF;\">${amount}</span>")
+            f"<br>Amount: <span style=\"font-weight:bold;color:#1E90FF;\">${amount:.2f}</span>")
         self.msg_box.setStandardButtons(qtw.QMessageBox.Yes | qtw.QMessageBox.Abort)
         response = self.msg_box.exec()
 

@@ -23,6 +23,10 @@
    <iconset resource="../static/assets/icons/app_icon.qrc">
     <normaloff>:/main/receipt-share.png</normaloff>:/main/receipt-share.png</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: #15181E;
+color: #F7F7F7;</string>
+  </property>
   <property name="tabShape">
    <enum>QTabWidget::TabShape::Rounded</enum>
   </property>
@@ -60,8 +64,11 @@
            <pointsize>14</pointsize>
           </font>
          </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="frame">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="placeholderText">
           <string>Meter Number</string>
@@ -87,6 +94,9 @@
          </property>
          <property name="contextMenuPolicy">
           <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
          </property>
          <property name="placeholderText">
           <string>Amount $</string>
@@ -132,10 +142,11 @@
              <font>
               <family>JetBrains Mono</family>
               <pointsize>14</pointsize>
+              <bold>true</bold>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(11, 121, 255);</string>
+             <string notr="true">background-color: #007991;</string>
             </property>
             <property name="text">
              <string>Submit</string>
@@ -154,10 +165,11 @@
              <font>
               <family>JetBrains Mono</family>
               <pointsize>14</pointsize>
+              <bold>true</bold>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(255, 62, 65);</string>
+             <string notr="true">background-color: #ff3e41;</string>
             </property>
             <property name="text">
              <string>Clear</string>
@@ -205,6 +217,9 @@
               <pointsize>14</pointsize>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: #f7f7f7;</string>
+            </property>
             <property name="text">
              <string>abcdefghijklmnopqrstuvwxyz 0123456789</string>
             </property>
@@ -238,6 +253,9 @@
            <family>JetBrains Mono</family>
            <pointsize>10</pointsize>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: #f7f7f7;</string>
          </property>
          <property name="text">
           <string>abcdefghijklmnopqrstuvwxyz 0123456789</string>
