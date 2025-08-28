@@ -15,6 +15,8 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 from .locators import FirstPageLocators, DatePickerLocators, SecondPageLocators, ResultPageLocators
 
+from src.service.locators import DatePickerLocators
+
 
 class BrowserAutomator:
     """
@@ -38,33 +40,7 @@ class BrowserAutomator:
         log = self.logger
         log.info("Setting up Chrome WebDriver. Please be patient.")
 
-        chrome_options = ChromeOptions()
-        edge_options = EdgeOptions()
-
-        if self.headless:
-            for opts in [chrome_options, edge_options]:
-                opts.add_argument("--headless")
-                opts.add_argument("--disable-gpu")
-                opts.add_argument("--no-sandbox")
-                opts.add_argument("--disable-dev-shm-usage")
-
-        try:
-            service = ChromeService(ChromeDriverManager().install())
-            self.driver = webdriver.Chrome(service=service, options=chrome_options)
-            self.wait = WebDriverWait(self.driver, 10)
-            log.info("Chrome initiated")
-        except Exception as chrome_error:
-            chrome_msg = f"Chrome WebDriver failed: {chrome_error}"
-            log.warning(chrome_msg)
-            try:
-                service = EdgeService(EdgeChromiumDriverManager().install())
-                self.driver = webdriver.Edge(service=service, options=edge_options)
-                self.wait = WebDriverWait(self.driver, 10)
-                log.info("Edge initiated")
-            except Exception as edge_error:
-                edge_msg = f"Edge WebDriver failed: {edge_error}"
-                log.critical(edge_msg)
-                raise RuntimeError("WebDriver initiation failed") from edge_error
+        self._setup_chrome()
 
     def _setup_chrome(self):
         options = ChromeOptions()
