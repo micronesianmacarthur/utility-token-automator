@@ -33,3 +33,26 @@ class Validate:
         if not all ([name, number, code, month, year]):
             return False, "Missing CC environment variables"
         return True, "CC environment variables set"
+
+    @staticmethod
+    def luhn_validation(cc_number):
+        """Validates cc number using the Luhn algorithm."""
+        if not cc_number.isdigit():
+            raise Exception("Invalid CC Number")
+
+        digits = [int(d) for d in cc_number]
+        total = 0
+        is_second_digit = False
+
+        # iterate from rightmost digit
+        for i in range(len(digits)):
+            digit = digits[i]
+            if is_second_digit:
+                digit *= 2
+                if digit > 9:
+                    digit = digit % 10 + 1
+
+            total += digit
+            is_second_digit = not is_second_digit
+
+        return total % 10 == 0

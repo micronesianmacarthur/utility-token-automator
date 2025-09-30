@@ -4,7 +4,9 @@ from PySide6 import QtCore as qtc
 from PySide6 import QtWidgets as qtw
 from PySide6 import QtGui as qtg
 
-from mainwindow_ui import Ui_MainWindow
+# from mainwindow_ui import Ui_MainWindow
+from mainwindow_stacked_ui import Ui_MainWindow
+from ui.gui import NewCardDialog
 from service.validate import Validate
 from service.browser_automator import BrowserAutomator
 from service.log_handler import LogHandler
@@ -18,6 +20,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.set_logging()
 
+        # set main stack page
+        self.stackedWidget.setCurrentWidget(self.stack_main)
+
         # clear message and token label
         self.lb_token.setText("")
         self.lb_message.setText("")
@@ -27,8 +32,18 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.le_amount.returnPressed.connect(self.validate_input)
 
         # connect buttons
+        self.pb_searchMeter.clicked.connect(self.show_stack_consumer)
         self.pb_clear.clicked.connect(self.clear_input)
         self.pb_submit.clicked.connect(self.validate_input)
+        self.pb_cvClose.clicked.connect(self.show_stack_main)
+        self.pb_wClose.clicked.connect(self.show_stack_main)
+        self.pb_phClose.clicked.connect(self.show_stack_main)
+        self.pb_newCard.clicked.connect(self.open_new_card_dialog)
+
+        # connect menus
+        self.actionConsumers.triggered.connect(self.show_stack_consumer)
+        self.actionWallet.triggered.connect(self.show_stack_wallet)
+        self.actionPurchase_History.triggered.connect(self.show_stack_purchase_history)
 
     def handle_error(self, message):
         self.logger.error(message)
@@ -211,6 +226,21 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.automator.close()
         return
 
+    def show_stack_consumer(self):
+        self.stackedWidget.setCurrentWidget(self.stack_consumer)
+
+    def show_stack_main(self):
+        self.stackedWidget.setCurrentWidget(self.stack_main)
+
+    def show_stack_wallet(self):
+        self.stackedWidget.setCurrentWidget(self.stack_wallet)
+
+    def show_stack_purchase_history(self):
+        self.stackedWidget.setCurrentWidget(self.stack_purchaseHistory)
+
+    def open_new_card_dialog(self):
+        self.newCard = NewCardDialog()
+        self.newCard.show()
 
 
 if __name__ == '__main__':

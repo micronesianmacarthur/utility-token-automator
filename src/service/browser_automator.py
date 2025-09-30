@@ -15,8 +15,6 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 from .locators import FirstPageLocators, DatePickerLocators, SecondPageLocators, ResultPageLocators
 
-from src.service.locators import DatePickerLocators
-
 
 class BrowserAutomator:
     """
@@ -237,13 +235,7 @@ class BrowserAutomator:
     def check_meter_message(self):
         try:
             # find error message element with id
-            error_element = self.wait.until(
-                EC.visibility_of_element_located((
-                    By.ID, "ContentPlaceHolder1_lblmeter"
-                ))
-            )
-            # extract text
-            error_msg = error_element.text.strip()
+            error_msg = self.get_element_text(FirstPageLocators.METER_ERROR_LABEL)
             return error_msg
         except TimeoutException as te:
             self.logger.error(f"Timeout error: {str(te)}")
