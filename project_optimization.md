@@ -1,15 +1,19 @@
+
 # Project Overview
-This refactoring reorganizes the application to be more robust and maintainable. The key 
-changes include introducing a locators.py file to hold all web element selectors, which 
-isolates the part of the code most likely to break if the target website changes. A new 
-PurchaseWorker class now handles the entire multi-step purchase process in a background 
-thread, preventing the UI from freezing and cleanly separating the automation workflow from 
-the MainWindow. Error handling and configuration management have also been improved across the 
+
+This refactoring reorganizes the application to be more robust and maintainable. The key
+changes include introducing a locators.py file to hold all web element selectors, which
+isolates the part of the code most likely to break if the target website changes. A new
+PurchaseWorker class now handles the entire multi-step purchase process in a background
+thread, preventing the UI from freezing and cleanly separating the automation workflow from
+the MainWindow. Error handling and configuration management have also been improved across the
 board.
 
 src/service/constants.py (Optimized)
+
 ```python
-# src.static.constants
+
+# src.static.constants 
 
 import os
 
@@ -51,9 +55,13 @@ def get_cc_details():
         raise ConfigError("CC_EXP_MONTH and CC_EXP_YEAR must be valid integers.")
 
     return cc_details
+
 ```
+
 src/service/locators.py (New File)
+
 ```python
+
 # src/service/locators.py
 
 from selenium.webdriver.common.by import By
@@ -96,10 +104,12 @@ class ResultPageLocators:
     ERROR_TITLE = (By.ID, "LeftTitle")
     ERROR_DETAIL_XPATH = "//div[@style='font-size: 14px; text-align: left; word-break: break-all;']"
     
-```   
+```
 
 src/service/validate_optimized.py (Optimized)
+
 ```python
+
 # src/service/validate
 
 class ValidationError(Exception):
@@ -144,10 +154,13 @@ class Validate:
             return amount_val
         except (ValueError, TypeError):
             raise ValidationError("Invalid Amount: must be a number.")
+
 ```
 
 src/service/browser_automator.py (Optimized)
+
 ```python
+
 # src.service.browser_automator
 
 import logging
@@ -316,7 +329,9 @@ class BrowserAutomator:
 ```
 
 src/service/setup_worker.py (Optimized)
+
 ```python
+
 # src.service.setup_worker
 
 from PySide6.QtCore import QObject, Signal
@@ -352,7 +367,9 @@ class SetupWorker(QObject):
 ```
 
 src/service/purchase_worker.py (New File)
+
 ```python
+
 # src/service/purchase_worker
 
 from PySide6.QtCore import QObject, Signal
@@ -445,10 +462,13 @@ class PurchaseWorker(QObject):
         except Exception as e:
             self.automator.logger.error(f"Purchase failed during confirmation: {e}", exc_info=True)
             self.failure.emit(str(e))
-```            
+
+```
 
 src/service/log_handler_optimized.py
+
 ```python
+
 # src.service.log_handler
 
 import logging
@@ -472,10 +492,13 @@ class LogHandler(logging.Handler):
         """Formats and displays the log record."""
         msg = self.format(record)
         self.status_bar.showMessage(msg, self.default_timeout)
+
 ```
 
 src/main.py (Optimized)
+
 ```python
+
 # src/main_optimized.py
 
 import sys
@@ -691,73 +714,80 @@ if __name__ == '__main__':
 ## Explanation of Changes
 
 **1. `constants.py`**
+
 - **Security (Significant)**: Instead of loading sensitive credit card details into global variables
 at program start, the `get_cc_details()` function retrieves them from environment variables only
-when needed. This practice, known as "just-in-time" loading, minimizes the duration that 
-secrets are held in memory, reducing the attack surface. 
-- **Maintainability**: A custom `ConfigError` exception is introduced. If required environment 
+when needed. This practice, known as "just-in-time" loading, minimizes the duration that
+secrets are held in memory, reducing the attack surface.
+- **Maintainability**: A custom `ConfigError` exception is introduced. If required environment
 variables are missing, the program now fails immediately with a clear error message, rather
-than proceeding and failing later in a more obscure way. This makes debugging configuration 
+than proceeding and failing later in a more obscure way. This makes debugging configuration
 issues much faster. Basic type validation for month/year is also included.
 
 **2. `locators.py` (New File)**
+
 - **Maintainability (Very Significant)**: This new file embodies the Page Object Model (POM) design
 pattern. All Selenium locators (like `By.ID`, `By.XPATH`) are centralized here.
 - **Why it's significant**: The most fragile part of any UI automation is the selectors. Websites
-change their HTML structure frequently. In the original code, these locators were scattered 
+change their HTML structure frequently. In the original code, these locators were scattered
 throughout the `browser_automator.py` file. If the website's "Next" button ID changed, you would
-have to hunt for it in the code. Now, you only need to update it in one place: `locators.py`. 
+have to hunt for it in the code. Now, you only need to update it in one place: `locators.py`.
 This makes the script dramatically easier to maintain.
 
 **3. `validate.py`**
-- **Maintainability**: The validation methods now raise a custom `ValidationError` instead of 
-returning tuples `(bool, str)`. This is a more standard and "Pythonic" way to handle errors. 
+
+- **Maintainability**: The validation methods now raise a custom `ValidationError` instead of
+returning tuples `(bool, str)`. This is a more standard and "Pythonic" way to handle errors.
 It makes the calling code cleaner, as it can use a `try...except` block to handle all validation
 failures uniformly, rather than checking the first element of a returned tuple.
 - **Clarity**: The validation logic is slightly more explicit (e.g., `isdigit()` for the meter number).
 
 **4. `browser_automator.py`**
+
 - **Separation of Concerns**: This class is now leaner. Its sole responsibility is to perform basic
-actions on the browser (click, type, get text). It no longer contains the high-level logic of 
+actions on the browser (click, type, get text). It no longer contains the high-level logic of
 the purchase workflow. This makes the class more reusable and easier to test.
 - **Maintainability**: It uses the new `locators.py` file, so there are no hardcoded ID strings.
-- **Performance & Reliability**: The driver setup logic is refactored into smaller, private 
-methods (`_setup_chrome`, `_setup_edge`) for clarity. Generic wrapper methods (`click_element`, 
-`send_keys_to_element`) are introduced, which include the `WebDriverWait` logic. This reduces 
-code duplication and ensures that every action is performed on an element that is ready, 
+- **Performance & Reliability**: The driver setup logic is refactored into smaller, private
+methods (`_setup_chrome`, `_setup_edge`) for clarity. Generic wrapper methods (`click_element`,
+`send_keys_to_element`) are introduced, which include the `WebDriverWait` logic. This reduces
+code duplication and ensures that every action is performed on an element that is ready,
 making the script more reliable. The date picker logic is also cleaner and more robust.
 
 **5. `setup_worker.py` & `purchase_worker.py`**
+
 - **Performance & UI Responsiveness (Very Significant)**: All browser operations, from the initial
 setup to the final purchase, are now offloaded to background threads using `QObject` workers.
 - **SetupWorker**: Handles only the slow process of starting the browser and loading the first page.
 - **PurchaseWorker**: A new class that contains the entire multi-step business logic of the purchase.
-- **Why it's significant**: In the original code, `setup_complete` was a giant method in the 
-`MainWindow` that ran on the main UI thread after the initial setup. This would still freeze 
-the UI during the multi-step purchase process. By moving this entire workflow into 
-`PurchaseWorker`, the UI remains 100% responsive from start to finish. The user can move the 
+- **Why it's significant**: In the original code, `setup_complete` was a giant method in the
+`MainWindow` that ran on the main UI thread after the initial setup. This would still freeze
+the UI during the multi-step purchase process. By moving this entire workflow into
+`PurchaseWorker`, the UI remains 100% responsive from start to finish. The user can move the
 window or see status updates without any lag.
-- **Separation of Concerns**: This is the most critical architectural change. The `MainWindow` is no 
-longer responsible for the automation logic. It only manages the UI, validates input, and 
+- **Separation of Concerns**: This is the most critical architectural change. The `MainWindow` is no
+longer responsible for the automation logic. It only manages the UI, validates input, and
 delegates the work. This makes the `MainWindow` class much simpler and focused on its UI role.
- 
+
 **6. `log_handler.py`**
-- **Maintainability**: A `default_timeout` parameter was added to the constructor, making the 
-message display time configurable instead of relying on a "magic number" in the showMessage 
+
+- **Maintainability**: A `default_timeout` parameter was added to the constructor, making the
+message display time configurable instead of relying on a "magic number" in the showMessage
 call. This is a minor but good practice.
 
 **7. `main.py`**
-- **Clarity & Maintainability**: The `MainWindow` class is now significantly cleaner. The logic is 
-broken down into smaller, well-named methods (`_setup_logging`, `_connect_signals`, etc.). The 
+
+- **Clarity & Maintainability**: The `MainWindow` class is now significantly cleaner. The logic is
+broken down into smaller, well-named methods (`_setup_logging`, `_connect_signals`, etc.). The
 monolithic `setup_complete` and `validate_input` methods are gone.
-- **Workflow Management**: The main window now acts as a controller or orchestrator. It validates 
+- **Workflow Management**: The main window now acts as a controller or orchestrator. It validates
 input and then delegates tasks to the background workers. It listens for `success` or `failure`
 signals from the workers to update the UI. This event-driven approach (using Qt's signals and
 slots) is robust and easy to follow.
-- **Error Handling**: All process failures (validation, setup, or purchase) are now funneled into 
-a single slot, `on_process_failed`, which simplifies error logging and UI updates. A 
+- **Error Handling**: All process failures (validation, setup, or purchase) are now funneled into
+a single slot, `on_process_failed`, which simplifies error logging and UI updates. A
 _`cleanup_after_process` method ensures that resources (like the browser and threads) are always
 released correctly, whether the process succeeded or failed.
-- **User Experience**: Because of the background workers, the submit button is disabled during 
-the process and re-enabled when it's finished, providing clear feedback to the user about the 
+- **User Experience**: Because of the background workers, the submit button is disabled during
+the process and re-enabled when it's finished, providing clear feedback to the user about the
 application's state.
